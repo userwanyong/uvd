@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaveIt - 万能视频下载器</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 背景装饰 -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <div class="logo-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                    <polyline points="7 10 12 15 17 10"/>
+                    <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+            </div>
+            <span class="logo-text">Save<span class="logo-accent">It</span></span>
+        </div>
+        <div class="nav-links">
+            <a href="#" class="nav-link active">首页</a>
+            <a href="#features" class="nav-link">功能特性</a>
+            <a href="#platforms" class="nav-link">支持平台</a>
+        </div>
+        <div class="nav-actions">
+            <button class="btn btn-ghost" id="themeInfo">免费使用</button>
+        </div>
+    </nav>
+
+    <!-- Hero 区域 -->
+    <main>
+        <section class="hero">
+            <div class="hero-badge">支持 1000+ 视频平台</div>
+            <h1 class="hero-title">
+                粘贴链接，<span class="gradient-text">一键下载</span>
+                <br>任意平台视频
+            </h1>
+            <p class="hero-subtitle">
+                YouTube / B站 / 抖音 / 小红书 / Twitter / Instagram / 更多...
+                <br>无需安装任何软件，浏览器即可完成下载
+            </p>
+
+            <!-- 输入区域 -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <svg class="input-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+                    </svg>
+                    <input
+                        type="text"
+                        id="urlInput"
+                        class="url-input"
+                        placeholder="粘贴视频链接到这里... (支持 YouTube, B站, 抖音等)"
+                        autocomplete="off"
+                    />
+                    <button class="btn btn-primary input-btn" id="parseBtn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="11" cy="11" r="8"/>
+                            <path d="m21 21-4.35-4.35"/>
+                        </svg>
+                        解析
+                    </button>
+                </div>
+                <p class="input-hint">支持 YouTube, Bilibili, 抖音, TikTok, Twitter, Instagram, 小红书等 1000+ 平台</p>
+            </div>
+
+            <!-- 视频信息卡片（解析后显示） -->
+            <div class="video-card" id="videoCard" style="display: none;">
+                <div class="video-info">
+                    <div class="video-thumbnail-wrapper">
+                        <img id="videoThumbnail" class="video-thumbnail" src="" alt="缩略图" />
+                        <span class="video-duration" id="videoDuration"></span>
+                    </div>
+                    <div class="video-meta">
+                        <h3 class="video-title" id="videoTitle"></h3>
+                        <div class="video-meta-row">
+                            <span class="video-uploader" id="videoUploader"></span>
+                            <span class="video-date" id="videoDate"></span>
+                        </div>
+                        <p class="video-desc" id="videoDesc"></p>
+                    </div>
+                </div>
+
+                <!-- 格式选择 -->
+                <div class="format-section">
+                    <h4 class="format-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+                        </svg>
+                        选择画质
+                    </h4>
+                    <div class="format-list" id="formatList"></div>
+                </div>
+
+                <!-- 下载按钮 -->
+                <div class="download-actions">
+                    <button class="btn btn-primary btn-large" id="downloadBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="7 10 12 15 17 10"/>
+                            <line x1="12" y1="15" x2="12" y2="3"/>
+                        </svg>
+                        立即下载
+                    </button>
+                </div>
+            </div>
+
+            <!-- 下载进度 -->
+            <div class="progress-card" id="progressCard" style="display: none;">
+                <div class="progress-header">
+                    <span class="progress-label" id="progressLabel">正在下载...</span>
+                    <span class="progress-percent" id="progressPercent">0%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-details">
+                    <span id="progressSpeed">速度: --</span>
+                    <span id="progressSize">大小: --</span>
+                </div>
+            </div>
+
+            <!-- 下载完成 -->
+            <div class="complete-card" id="completeCard" style="display: none;">
+                <div class="complete-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                </div>
+                <h3>下载完成!</h3>
+                <a class="btn btn-primary" id="downloadFileBtn" href="#" download>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    保存到本地
+                </a>
+                <button class="btn btn-ghost" id="newDownloadBtn">下载新视频</button>
+            </div>
+        </section>
+
+        <!-- 错误提示 -->
+        <div class="error-toast" id="errorToast" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="15" y1="9" x2="9" y2="15"/>
+                <line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <span id="errorMsg"></span>
+        </div>
+
+        <!-- 功能特性 -->
+        <section class="features" id="features">
+            <h2 class="section-title">为什么选择 SaveIt?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                            <line x1="8" y1="21" x2="16" y2="21"/>
+                            <line x1="12" y1="17" x2="12" y2="21"/>
+                        </svg>
+                    </div>
+                    <h3>无需安装</h3>
+                    <p>打开浏览器即可使用，无需下载安装任何客户端或插件</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                        </svg>
+                    </div>
+                    <h3>极速下载</h3>
+                    <p>多线程加速下载，支持选择最佳画质，最高支持 8K</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                            <line x1="12" y1="18" x2="12.01" y2="18"/>
+                        </svg>
+                    </div>
+                    <h3>手机友好</h3>
+                    <p>响应式设计，手机和平板上也能轻松下载视频</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                    </div>
+                    <h3>安全可靠</h3>
+                    <p>视频直接从源站下载，不经过第三方服务器，保护隐私</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 支持平台 -->
+        <section class="platforms" id="platforms">
+            <h2 class="section-title">支持 1000+ 平台</h2>
+            <div class="platforms-grid">
+                <div class="platform-chip">YouTube</div>
+                <div class="platform-chip">Bilibili</div>
+                <div class="platform-chip">抖音</div>
+                <div class="platform-chip">TikTok</div>
+                <div class="platform-chip">Twitter / X</div>
+                <div class="platform-chip">Instagram</div>
+                <div class="platform-chip">小红书</div>
+                <div class="platform-chip">Facebook</div>
+                <div class="platform-chip">Vimeo</div>
+                <div class="platform-chip">Reddit</div>
+                <div class="platform-chip">Pinterest</div>
+                <div class="platform-chip">Twitch</div>
+                <div class="platform-chip">更多...</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>SaveIt - 万能视频下载器 | 基于开源项目 yt-dlp 构建</p>
+        </footer>
+    </main>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
