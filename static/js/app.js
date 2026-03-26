@@ -329,3 +329,19 @@ urlInput.addEventListener('paste', () => {
         }
     }, 100);
 });
+
+// ─── AI 总结事件触发（追加，不修改已有逻辑） ──────
+// 保存当前 URL 供 AI 总结使用
+const _origShowVideoInfo = showVideoInfo;
+showVideoInfo = function(info) {
+    _origShowVideoInfo(info);
+    currentVideoInfo = currentVideoInfo || {};
+    currentVideoInfo.url = urlInput.value.trim();
+};
+
+// 在 newDownloadBtn 点击时触发 videoReset 事件
+newDownloadBtn.addEventListener('click', function() {
+    setTimeout(() => {
+        document.dispatchEvent(new CustomEvent('videoReset'));
+    }, 50);
+});

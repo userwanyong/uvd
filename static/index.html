@@ -101,7 +101,7 @@
                     <div class="format-list" id="formatList"></div>
                 </div>
 
-                <!-- 下载按钮 -->
+                <!-- 操作按钮 -->
                 <div class="download-actions">
                     <button class="btn btn-primary btn-large" id="downloadBtn">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -111,6 +111,32 @@
                         </svg>
                         立即下载
                     </button>
+                    <button class="btn-ai btn-large" id="aiSummaryBtn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                        </svg>
+                        AI 总结
+                    </button>
+                </div>
+
+                <!-- AI 总结进度 -->
+                <div id="aiProgressCard">
+                    <div class="ai-progress-header">
+                        <div class="ai-progress-spinner"></div>
+                        <span class="ai-progress-label" id="aiProgressLabel">正在提取字幕文本...</span>
+                    </div>
+                </div>
+
+                <!-- AI 总结结果 -->
+                <div id="aiResultCard">
+                    <h3 class="ai-result-title" id="aiResultVideoTitle"></h3>
+                    <div class="ai-result-tabs">
+                        <button class="ai-tab active" data-tab="summary">智能总结</button>
+                        <button class="ai-tab" data-tab="outline">章节大纲</button>
+                        <button class="ai-tab" data-tab="keypoints">核心要点</button>
+                        <button class="ai-tab" data-tab="mindmap">思维导图</button>
+                    </div>
+                    <div class="ai-result-content" id="aiResultContent"></div>
                 </div>
             </div>
 
@@ -233,5 +259,11 @@
     </main>
 
     <script src="/static/js/app.js"></script>
+
+    <!-- AI 视频总结功能 -->
+    <link rel="stylesheet" href="/static/css/ai-summary.css">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markmap-view@0.18.12/dist/browser/index.js"></script>
+    <script src="/static/js/ai-summary.js"></script>
 </body>
 </html>

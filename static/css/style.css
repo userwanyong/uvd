@@ -195,6 +195,7 @@ body {
     border-radius: var(--radius);
 }
 
+
 /* ===== Hero ===== */
 .hero {
     position: relative;
@@ -479,6 +480,7 @@ body {
 .download-actions {
     display: flex;
     justify-content: center;
+    gap: 12px;
 }
 
 /* ===== 进度卡片 ===== */
