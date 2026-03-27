@@ -143,7 +143,7 @@ function showVideoInfo(info) {
     buildFormatList(info.formats, info.best_format_id);
 
     // 显示卡片
-    videoCard.style.display = 'block';
+    videoCard.style.display = 'flex';
     videoCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
@@ -246,7 +246,7 @@ async function startDownload() {
     } catch (e) {
         showError(e.message);
         progressCard.style.display = 'none';
-        videoCard.style.display = 'block';
+        videoCard.style.display = 'flex';
     } finally {
         setBtnLoading(downloadBtn, false);
     }
@@ -290,7 +290,7 @@ function pollProgress(taskId) {
                 clearInterval(progressTimer);
                 showError('下载失败: ' + data.error);
                 progressCard.style.display = 'none';
-                videoCard.style.display = 'block';
+                videoCard.style.display = 'flex';
             }
         } catch (e) {
             clearInterval(progressTimer);
@@ -331,12 +331,16 @@ urlInput.addEventListener('paste', () => {
 });
 
 // ─── AI 总结事件触发（追加，不修改已有逻辑） ──────
-// 保存当前 URL 供 AI 总结使用
+// 保存当前 URL 供 AI 总结使用，并自动触发 AI 总结
 const _origShowVideoInfo = showVideoInfo;
 showVideoInfo = function(info) {
     _origShowVideoInfo(info);
     currentVideoInfo = currentVideoInfo || {};
     currentVideoInfo.url = urlInput.value.trim();
+    // 自动触发 AI 总结（通过自定义事件）
+    setTimeout(function() {
+        document.dispatchEvent(new CustomEvent('videoParsed'));
+    }, 300);
 };
 
 // 在 newDownloadBtn 点击时触发 videoReset 事件

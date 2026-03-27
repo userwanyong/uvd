@@ -25,7 +25,7 @@
     const aiProgressLabel = document.getElementById('aiProgressLabel');
     const aiResultCard = document.getElementById('aiResultCard');
     const aiResultContent = document.getElementById('aiResultContent');
-    const aiResultVideoTitle = document.getElementById('aiResultVideoTitle');
+    const aiEmptyState = document.getElementById('aiEmptyState');
     const tabs = document.querySelectorAll('.ai-tab');
 
     // ─── 事件绑定 ────────────────────────────────
@@ -42,8 +42,14 @@
     document.addEventListener('videoReset', function () {
         if (aiProgressCard) aiProgressCard.style.display = 'none';
         if (aiResultCard) aiResultCard.style.display = 'none';
+        if (aiEmptyState) aiEmptyState.style.display = 'flex';
         destroyMindmap();
         resetAIState();
+    });
+
+    // 监听视频解析完成事件，自动触发 AI 总结
+    document.addEventListener('videoParsed', function () {
+        startAISummary();
     });
 
     // ─── 核心函数 ────────────────────────────────
@@ -61,7 +67,11 @@
         // 重置状态
         resetAIState();
         aiBtn.disabled = true;
-        aiBtn.textContent = '正在准备...';
+        aiBtn.innerHTML = '<span class="ai-progress-spinner" style="width:14px;height:14px;border-width:2px"></span> 生成中...';
+
+        // 隐藏空状态，显示进度
+        if (aiEmptyState) aiEmptyState.style.display = 'none';
+        if (aiResultCard) aiResultCard.style.display = 'none';
 
         try {
             const resp = await fetch('/api/ai/summarize', {
@@ -74,8 +84,8 @@
 
             if (!resp.ok) {
                 showError(data.detail || 'AI 总结启动失败');
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> 生成视频总结';
+                restoreAiBtn();
+                if (aiEmptyState) aiEmptyState.style.display = 'flex';
                 return;
             }
 
@@ -88,8 +98,8 @@
 
         } catch (err) {
             showError('网络错误，请重试');
-            aiBtn.disabled = false;
-            aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> 生成视频总结';
+            restoreAiBtn();
+            if (aiEmptyState) aiEmptyState.style.display = 'flex';
         }
     }
 
@@ -112,16 +122,15 @@
             if (data.status === 'completed') {
                 clearInterval(aiPollTimer);
                 aiProgressCard.style.display = 'none';
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> 重新生成总结';
+                restoreAiBtn();
 
                 // 获取完整结果
                 await fetchResult();
             } else if (data.status === 'error') {
                 clearInterval(aiPollTimer);
                 aiProgressCard.style.display = 'none';
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> 生成视频总结';
+                restoreAiBtn();
+                if (aiEmptyState) aiEmptyState.style.display = 'flex';
                 showError(data.error || 'AI 总结失败');
             }
 
@@ -138,11 +147,6 @@
             if (!resp.ok) {
                 showError(data.detail || '获取结果失败');
                 return;
-            }
-
-            // 显示结果
-            if (data.video_title && aiResultVideoTitle) {
-                aiResultVideoTitle.textContent = data.video_title;
             }
 
             // 保存结果到内存
@@ -199,6 +203,11 @@
             clearInterval(aiPollTimer);
             aiPollTimer = null;
         }
+    }
+
+    function restoreAiBtn() {
+        aiBtn.disabled = false;
+        aiBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 重新生成';
     }
 
     function destroyMindmap() {
@@ -486,7 +495,8 @@
 
         var a = document.createElement('a');
         a.href = url;
-        var title = (aiResultVideoTitle && aiResultVideoTitle.textContent) || 'mindmap';
+        var titleEl = document.getElementById('videoTitle');
+        var title = (titleEl && titleEl.textContent) || 'mindmap';
         a.download = title + '.svg';
         a.click();
 
@@ -542,7 +552,8 @@
             ctx.drawImage(img, 0, 0, width, height);
 
             var a = document.createElement('a');
-            var title = (aiResultVideoTitle && aiResultVideoTitle.textContent) || 'mindmap';
+            var titleEl = document.getElementById('videoTitle');
+            var title = (titleEl && titleEl.textContent) || 'mindmap';
             a.download = title + '.png';
             a.href = canvas.toDataURL('image/png');
             a.click();
